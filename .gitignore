@@ -1,0 +1,84 @@
+# ==============================================================================
+# Data & model artifacts
+# ------------------------------------------------------------------------------
+# Default policy: NOTHING under data/ or model weights are committed, even via
+# LFS, unless explicitly whitelisted below. Large files belong in external
+# storage (S3/GCS/Hugging Face Hub/DVC remote) referenced by a manifest or
+# pointer file — see docs/DATA_MANAGEMENT.md.
+# ==============================================================================
+
+# Raw / intermediate / processed data — never commit actual data files
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+!data/**/*.md
+!data/**/manifest.*
+!data/**/*.dvc
+
+# Model checkpoints / weights — never commit actual weights
+models/checkpoints/*
+models/final/*
+!models/checkpoints/.gitkeep
+!models/final/.gitkeep
+!models/**/*.md
+!models/**/manifest.*
+!models/**/*.dvc
+
+# Common ML artifact dirs
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.gguf
+wandb/
+mlruns/
+lightning_logs/
+runs/
+tensorboard/
+outputs/
+logs/
+*.log
+
+# ==============================================================================
+# Python
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ==============================================================================
+# Environment / secrets
+# ==============================================================================
+.env
+.env.*
+*.pem
+*.key
+secrets/
+credentials.json
+
+# ==============================================================================
+# OS / editor
+# ==============================================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

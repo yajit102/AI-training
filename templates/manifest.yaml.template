@@ -1,0 +1,14 @@
+# Copy to data/raw/<name>/manifest.yaml or models/final/<name>/manifest.yaml
+# and fill in. This file IS committed to git; the artifact it points to is not.
+
+name: <dataset-or-model-name>
+version: v1
+source: <s3://bucket/path/ | https://huggingface.co/... | gs://...>
+format: <jsonl | parquet | safetensors | ...>
+size_gb: 0.0
+num_examples: 0
+checksum_sha256: <sha256sum of the archive/file>
+license: <license identifier>
+retrieved: <YYYY-MM-DD>
+notes: >
+  Free-form notes: how it was produced, related versions, caveats.

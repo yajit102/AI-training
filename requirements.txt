@@ -1,0 +1,25 @@
+# Core
+numpy
+pyyaml
+tqdm
+
+# ML frameworks — uncomment what you need
+# torch
+# transformers
+# datasets
+# accelerate
+# peft
+# trl
+
+# Vision
+# torchvision
+# opencv-python
+# pillow
+
+# Experiment tracking
+# wandb
+# mlflow
+
+# Dev
+pytest
+ruff

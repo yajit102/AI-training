@@ -1,0 +1,28 @@
+# Example training config — copy and adapt per run.
+run_name: example-finetune-v1
+
+model:
+  base: <base-model-name-or-path>
+  config_ref: configs/model/example.yaml
+
+data:
+  manifest: data/raw/<dataset-name>/manifest.yaml
+  train_split: train
+  val_split: val
+
+training:
+  epochs: 3
+  batch_size: 8
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.03
+  gradient_accumulation_steps: 4
+  precision: bf16
+  seed: 42
+
+output:
+  checkpoint_dir: models/checkpoints/example-finetune-v1
+  save_every_steps: 500
+
+logging:
+  backend: none # wandb | mlflow | none
+  project: ai-training
