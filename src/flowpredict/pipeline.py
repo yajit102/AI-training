@@ -21,7 +21,9 @@ from src.flowpredict.quantile_model import (
 from src.flowpredict.synthetic_data import generate_hierarchical_psv_dataset
 
 
-def run(n_cases: int = 8000, seed: int = 42, verbose: bool = True) -> dict:
+def run(
+    n_cases: int = 8000, seed: int = 42, verbose: bool = True, skip_vif: bool = False
+) -> dict:
     cases, authorities, disruptions, closures = generate_hierarchical_psv_dataset(
         n_cases=n_cases, seed=seed
     )
@@ -42,9 +44,18 @@ def run(n_cases: int = 8000, seed: int = 42, verbose: bool = True) -> dict:
     engineered = features.engineer_features(closed, label_days, train_mask_full)
 
     candidate_features = features.BASE_NUMERIC_FEATURES
-    pruned_features, vif_report = features.prune_collinear_features(
-        engineered.loc[train_mask_full], candidate_features
-    )
+    if skip_vif:
+        # VIF pruning (statsmodels) is the slowest single step and not
+        # worth paying for on every request in a latency-sensitive serving
+        # path (e.g. a serverless endpoint) -- keep the previously-known
+        # pruned set instead. Always run it at least once offline (CLI
+        # default) and hardcode the result here if it changes.
+        pruned_features = [f for f in candidate_features if f != "silence_ratio"]
+        vif_report = pd.DataFrame(columns=["dropped_feature", "vif_at_drop"])
+    else:
+        pruned_features, vif_report = features.prune_collinear_features(
+            engineered.loc[train_mask_full], candidate_features
+        )
 
     cat_cols = [c for c in ["check_type", "country", "category"] if c in engineered.columns]
     model_features = pruned_features + cat_cols

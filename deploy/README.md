@@ -1,9 +1,56 @@
 # FlowPredict — Deploy Package
 
-Everything needed to build, run, and update the FlowPredict TAT model
-pipeline (`src/flowpredict/`) as a Docker container.
+Two supported deploy targets for the FlowPredict TAT model pipeline
+(`src/flowpredict/`): a Docker container (batch job, run on demand) or
+a Vercel serverless API (`GET /api/predict`, on-demand HTTP).
 
-## First-time setup (on the deploy machine)
+**Vercel cannot run the Docker container** — a bare Vercel deploy of
+this repo without `api/` and `vercel.json` returns exactly the
+`404: NOT_FOUND` platform error you'd get hitting any route with no
+matching function or static file. Use the Vercel section below instead.
+
+## Deploy to Vercel (serverless API)
+
+```bash
+npm i -g vercel   # if you don't already have the CLI
+vercel login
+vercel --prod
+```
+
+Or via the Vercel dashboard: import the GitHub repo, leave the root
+directory as-is (no framework preset needed — `vercel.json` +
+`api/predict.py` are auto-detected as a Python serverless function),
+and deploy.
+
+Once live:
+
+```
+GET https://<your-project>.vercel.app/api/predict?n_cases=800&seed=42
+```
+
+returns the diagnostics report as JSON (P50 MAE, per-quantile coverage,
+model feature list). `/` serves a small landing page (`public/index.html`)
+linking to it.
+
+Notes:
+- `n_cases` is capped at 3000 and defaults to 800 (not the CLI's 8000)
+  because a serverless invocation has a hard wall-clock budget —
+  `vercel.json` sets `maxDuration: 10` to match the Hobby plan's ceiling.
+  If you're on Pro, raise it (up to 60) for larger `n_cases`.
+- The endpoint runs with `skip_vif=True` (see `src/flowpredict/pipeline.py`)
+  to skip the statsmodels VIF pass, which is the slowest single step and
+  not worth re-running on every request — it hardcodes the previously
+  established pruned feature set instead.
+- `api/requirements.txt` is scoped to only what `api/predict.py` imports
+  (no `statsmodels`, no `pytest`/`ruff`) to keep the function bundle small.
+- If you still see `404: NOT_FOUND` after deploying, check the Vercel
+  build log for the function — it usually means `api/predict.py` failed
+  to build (missing dependency, Python version mismatch), not that the
+  route is unmapped.
+
+## Deploy as a Docker container (batch job)
+
+### First-time setup (on the deploy machine)
 
 Requires Docker (with the `docker compose` plugin) and git.
 
