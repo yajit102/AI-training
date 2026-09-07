@@ -3,6 +3,13 @@ numpy
 pyyaml
 tqdm
 
+# FlowPredict TAT model (src/flowpredict)
+pandas
+scipy
+scikit-learn
+lightgbm
+statsmodels
+
 # ML frameworks — uncomment what you need
 # torch
 # transformers
