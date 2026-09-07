@@ -7,3 +7,4 @@
 # exist to keep out of regular history. If that changes, remove this
 # override and push via a machine with LFS network access instead.
 *.tar.gz -filter -diff -merge -text
+*.zip    -filter -diff -merge -text
