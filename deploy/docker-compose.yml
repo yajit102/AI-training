@@ -1,0 +1,10 @@
+services:
+  flowpredict:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: flowpredict:latest
+    container_name: flowpredict
+    command: ["--n-cases", "8000"]
+    volumes:
+      - ../output:/app/output
