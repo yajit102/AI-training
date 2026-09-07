@@ -5,9 +5,11 @@ tqdm
 
 # FlowPredict TAT model (src/flowpredict)
 pandas
-scipy
-scikit-learn
 lightgbm
+# scipy/statsmodels are only needed for the offline VIF-pruning step
+# (features.prune_collinear_features, skip_vif=False) -- not used by
+# api/predict.py, which always runs with skip_vif=True.
+scipy
 statsmodels
 
 # ML frameworks — uncomment what you need

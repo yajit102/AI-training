@@ -23,7 +23,8 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import KFold
+
+from src.flowpredict._stats import kfold_splits
 
 CATEGORICAL_GROUP_COLS = ["authority_id", "country", "check_type"]
 
@@ -48,8 +49,7 @@ def oof_target_encode(
     global_mean = target[train_mask].mean()
 
     train_idx = df.index[train_mask]
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
-    for fold_train_pos, fold_hold_pos in kf.split(train_idx):
+    for fold_train_pos, fold_hold_pos in kfold_splits(len(train_idx), n_splits, seed):
         fold_train_idx = train_idx[fold_train_pos]
         fold_hold_idx = train_idx[fold_hold_pos]
         fold_groups = df.loc[fold_train_idx, group_col]

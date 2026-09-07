@@ -7,10 +7,9 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_pinball_loss
-from sklearn.model_selection import train_test_split
 
 from src.flowpredict import critical_path, features, survival
+from src.flowpredict._stats import mean_absolute_error, mean_pinball_loss, train_test_split_indices
 from src.flowpredict.quantile_model import (
     apply_mondrian_conformal,
     fit_quantile_models,
@@ -34,8 +33,8 @@ def run(
     # Three-way split on CLOSED cases only (open cases have no usable label
     # for pinball loss and are folded in purely via IPCW weighting below).
     idx = np.arange(len(closed))
-    idx_train, idx_temp = train_test_split(idx, test_size=0.4, random_state=seed)
-    idx_calib, idx_test = train_test_split(idx_temp, test_size=0.5, random_state=seed)
+    idx_train, idx_temp = train_test_split_indices(idx, test_size=0.4, seed=seed)
+    idx_calib, idx_test = train_test_split_indices(idx_temp, test_size=0.5, seed=seed)
 
     train_mask_full = np.zeros(len(closed), dtype=bool)
     train_mask_full[idx_train] = True

@@ -30,39 +30,45 @@ def fit_quantile_models(
     alphas: tuple[float, ...] = (0.50, 0.80, 0.90),
     categorical_features: list[str] | None = None,
     seed: int = 42,
-) -> dict[float, lgb.LGBMRegressor]:
+) -> dict[float, lgb.Booster]:
+    """Trains with lightgbm's native Booster API (lgb.train), not the
+    lgb.LGBMRegressor scikit-learn wrapper -- that wrapper hard-requires
+    scikit-learn to be installed (it subclasses sklearn.base.BaseEstimator
+    and raises LightGBMError at fit() time otherwise), which is exactly
+    the ~50MB dependency this module exists to avoid pulling into a
+    size-constrained serverless deployment. The native API needs no
+    scikit-learn at all.
+    """
+    base_params = {
+        "objective": "quantile",
+        "learning_rate": 0.04,
+        "num_leaves": 24,
+        "min_data_in_leaf": 30,
+        "bagging_fraction": 0.85,
+        "bagging_freq": 1,
+        "feature_fraction": 0.85,
+        "lambda_l2": 1.0,
+        "seed": seed,
+        "verbosity": -1,
+    }
     models = {}
-    p50 = None
     for alpha in alphas:
-        model = lgb.LGBMRegressor(
-            objective="quantile",
-            alpha=alpha,
-            n_estimators=250,
-            learning_rate=0.04,
-            num_leaves=24,
-            min_child_samples=30,
-            subsample=0.85,
-            subsample_freq=1,
-            colsample_bytree=0.85,
-            reg_lambda=1.0,
-            random_state=seed,
-            verbosity=-1,
-        )
-        model.fit(
+        dataset = lgb.Dataset(
             X_train,
-            y_train_log,
-            sample_weight=sample_weight,
+            label=y_train_log,
+            weight=sample_weight,
             categorical_feature=categorical_features or "auto",
+            free_raw_data=False,
         )
-        models[alpha] = model
-        if alpha == 0.50:
-            p50 = model
-    assert p50 is not None, "alphas must include 0.50"
+        models[alpha] = lgb.train(
+            {**base_params, "alpha": alpha}, dataset, num_boost_round=250
+        )
+    assert 0.50 in models, "alphas must include 0.50"
     return models
 
 
 def predict_quantiles(
-    models: dict[float, lgb.LGBMRegressor], X: pd.DataFrame
+    models: dict[float, lgb.Booster], X: pd.DataFrame
 ) -> dict[float, np.ndarray]:
     return {alpha: np.expm1(model.predict(X)) for alpha, model in models.items()}
 

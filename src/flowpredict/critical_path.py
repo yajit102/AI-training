@@ -26,7 +26,8 @@ propagation requested, without pulling in a heavy dependency.
 from __future__ import annotations
 
 import numpy as np
-from scipy.stats import norm
+
+from src.flowpredict._stats import norm_cdf, norm_ppf
 
 
 def _lognormal_params_from_quantiles(
@@ -35,7 +36,7 @@ def _lognormal_params_from_quantiles(
     p50 = np.maximum(p50, 0.5)
     p90 = np.maximum(p90, p50 + 0.1)
     mu = np.log(p50)
-    z90 = norm.ppf(0.90)
+    z90 = norm_ppf(np.array(0.90))
     sigma = (np.log(p90) - mu) / z90
     sigma = np.maximum(sigma, 1e-3)
     return mu, sigma
@@ -71,10 +72,10 @@ def simulate_case_level_quantiles(
         np.fill_diagonal(corr, 1.0)
 
         z = rng.multivariate_normal(mean=np.zeros(k), cov=corr, size=n_sims)
-        u = norm.cdf(z)  # Gaussian copula -> uniform marginals with target correlation
+        u = norm_cdf(z)  # Gaussian copula -> uniform marginals with target correlation
 
         mu, sigma = _lognormal_params_from_quantiles(check_p50, check_p90)
-        marginals = np.exp(mu[None, :] + sigma[None, :] * norm.ppf(np.clip(u, 1e-6, 1 - 1e-6)))
+        marginals = np.exp(mu[None, :] + sigma[None, :] * norm_ppf(np.clip(u, 1e-6, 1 - 1e-6)))
         draws = marginals.max(axis=1)
 
     return {

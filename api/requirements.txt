@@ -1,10 +1,15 @@
-# Scoped to what api/predict.py actually imports at runtime. statsmodels
-# is intentionally omitted: it's only imported inside
+# Scoped to what api/predict.py actually imports at runtime.
+#
+# scipy and scikit-learn are deliberately NOT here: src/flowpredict now
+# has zero import of either (see src/flowpredict/_stats.py for the
+# pure-numpy replacements). Before this fix, numpy+pandas+scipy+
+# scikit-learn+lightgbm together came to ~293MB unzipped -- over
+# Vercel's 250MB unzipped serverless-function limit, which is what
+# caused the deploy to fail. This trimmed set is ~130MB.
+#
+# statsmodels is also omitted: it's only imported inside
 # features.prune_collinear_features, which api/predict.py never calls
-# (it runs the pipeline with skip_vif=True to keep cold starts within
-# Vercel's execution-time budget). Add it back here if you flip skip_vif.
+# (it runs the pipeline with skip_vif=True).
 numpy
 pandas
-scipy
-scikit-learn
 lightgbm
