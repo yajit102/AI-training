@@ -1,0 +1,9 @@
+# Override the repo-wide *.tar.gz -> Git LFS routing for this directory.
+#
+# This session's network egress does not permit reaching lfs.github.com
+# (only github.com itself), so packages placed here are committed as
+# plain git blobs instead. They are small (tens of KB, source-only
+# archives) -- nowhere near the size class .gitattributes' LFS rules
+# exist to keep out of regular history. If that changes, remove this
+# override and push via a machine with LFS network access instead.
+*.tar.gz -filter -diff -merge -text
