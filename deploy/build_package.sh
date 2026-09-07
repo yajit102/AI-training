@@ -17,6 +17,9 @@ cp -R scripts "${STAGE_DIR}/scripts"
 cp -R tests "${STAGE_DIR}/tests"
 cp -R docs "${STAGE_DIR}/docs"
 cp -R deploy "${STAGE_DIR}/deploy"
+cp -R api "${STAGE_DIR}/api"
+cp -R public "${STAGE_DIR}/public"
+cp vercel.json "${STAGE_DIR}/vercel.json"
 cp requirements.txt "${STAGE_DIR}/requirements.txt"
 cp README.md "${STAGE_DIR}/README.md" 2>/dev/null || true
 find "${STAGE_DIR}" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
