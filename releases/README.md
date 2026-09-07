@@ -8,5 +8,6 @@ LFS routing rule for this directory, since these files are small
 
 | File | Version | Notes |
 |---|---|---|
-| `flowpredict-0.3.0.zip` / `.tar.gz` | 0.3.0 | Fixes the Vercel deploy failure: `src/flowpredict` no longer imports `scikit-learn` or `scipy` (replaced with pure-numpy equivalents in `src/flowpredict/_stats.py`, and `lightgbm` trained via its native `Booster` API instead of the sklearn-wrapper `LGBMRegressor`, which hard-requires scikit-learn). `numpy+pandas+scipy+scikit-learn+lightgbm` together were ~293MB unzipped, over Vercel's 250MB serverless-function limit — the trimmed `api/requirements.txt` set is ~225MB. |
-| ~~`flowpredict-0.2.0.*`~~ | 0.2.0 | Superseded — this is the version that failed to deploy. |
+| `flowpredict-0.4.0.zip` / `.tar.gz` | 0.4.0 | Fixes `api/predict.py`'s Vercel build error ("No python entrypoint found in default locations"): switched from a `BaseHTTPRequestHandler` subclass named `handler` to a standard WSGI `app` callable, which Vercel's Python builder looks for by default. |
+| ~~`flowpredict-0.3.0.*`~~ | 0.3.0 | Fixed the size-limit deploy failure (dropped `scikit-learn`/`scipy`) but still used the `handler`-class entrypoint, which then failed the build with an entrypoint-detection error. |
+| ~~`flowpredict-0.2.0.*`~~ | 0.2.0 | Superseded — over Vercel's 250MB unzipped function-size limit. |
